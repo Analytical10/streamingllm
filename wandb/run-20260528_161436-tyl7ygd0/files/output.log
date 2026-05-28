@@ -1,0 +1,17 @@
+
+
+
+
+
+
+dense:   0%|                                                | 114/65133 [00:12<2:02:33,  8.84it/s]
+Traceback (most recent call last):
+  File "/home/raosongde/streamingllm-experiment/scripts/run_exp1_ppl.py", line 151, in <module>
+    main()
+  File "/home/raosongde/streamingllm-experiment/scripts/run_exp1_ppl.py", line 132, in main
+    losses = compute_streaming_loss(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/raosongde/streamingllm-experiment/streamingllm_experiment/eval_utils.py", line 48, in compute_streaming_loss
+    step_loss_value = float(step_loss.item())
+                            ^^^^^^^^^^^^^^^^
+KeyboardInterrupt

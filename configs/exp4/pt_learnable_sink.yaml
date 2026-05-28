@@ -1,0 +1,19 @@
+# LLaMA-Factory pretraining config (learnable sink token)
+model_name_or_path: EleutherAI/pythia-160m
+stage: pt
+do_train: true
+finetuning_type: full
+output_dir: outputs/exp4/learnable_sink
+
+# Dataset settings
+# dataset: your_dataset_name
+# data_dir: data/pretrain
+
+# Training settings
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 16
+learning_rate: 2.0e-4
+max_steps: 143000
+logging_steps: 50
+save_steps: 1000
+bf16: true

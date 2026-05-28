@@ -1,0 +1,36 @@
+2026-05-28 15:44:32,981 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Current SDK version is 0.17.4
+2026-05-28 15:44:32,981 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Configure stats pid to 26737
+2026-05-28 15:44:32,981 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Loading settings from /home/raosongde/.config/wandb/settings
+2026-05-28 15:44:32,981 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Loading settings from /home/raosongde/streamingllm-experiment/wandb/settings
+2026-05-28 15:44:32,981 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'scripts/run_exp1_ppl.py', 'program_abspath': '/home/raosongde/streamingllm-experiment/scripts/run_exp1_ppl.py', 'program': '/home/raosongde/streamingllm-experiment/scripts/run_exp1_ppl.py'}
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_setup.py:_flush():76] Applying login settings: {}
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_init.py:_log_setup():529] Logging user logs to /home/raosongde/streamingllm-experiment/wandb/run-20260528_154432-jitmnpoo/logs/debug.log
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_init.py:_log_setup():530] Logging internal logs to /home/raosongde/streamingllm-experiment/wandb/run-20260528_154432-jitmnpoo/logs/debug-internal.log
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_init.py:init():569] calling init triggers
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_init.py:init():576] wandb.init called with sweep_config: {}
+config: {'model_name': '/data/pretrained_models/Llama-2-7b-hf', 'input': 'data/pg19_20k.txt', 'window_length': 2048, 'num_sink_tokens': 4, 'smooth_window': 100, 'max_tokens': 2000}
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_init.py:init():619] starting backend
+2026-05-28 15:44:32,982 INFO    MainThread:26737 [wandb_init.py:init():623] setting up manager
+2026-05-28 15:44:32,984 INFO    MainThread:26737 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2026-05-28 15:44:32,986 INFO    MainThread:26737 [wandb_init.py:init():631] backend started and connected
+2026-05-28 15:44:33,000 INFO    MainThread:26737 [wandb_init.py:init():720] updated telemetry
+2026-05-28 15:44:33,002 INFO    MainThread:26737 [wandb_init.py:init():753] communicating run to backend with 90.0 second timeout
+2026-05-28 15:44:34,374 INFO    MainThread:26737 [wandb_run.py:_on_init():2402] communicating current version
+2026-05-28 15:44:34,806 INFO    MainThread:26737 [wandb_run.py:_on_init():2411] got version response upgrade_message: "wandb version 0.27.0 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2026-05-28 15:44:34,807 INFO    MainThread:26737 [wandb_init.py:init():804] starting run threads in backend
+2026-05-28 15:44:37,644 INFO    MainThread:26737 [wandb_run.py:_console_start():2380] atexit reg
+2026-05-28 15:44:37,645 INFO    MainThread:26737 [wandb_run.py:_redirect():2235] redirect: wrap_raw
+2026-05-28 15:44:37,645 INFO    MainThread:26737 [wandb_run.py:_redirect():2300] Wrapping output streams.
+2026-05-28 15:44:37,645 INFO    MainThread:26737 [wandb_run.py:_redirect():2325] Redirects installed.
+2026-05-28 15:44:37,646 INFO    MainThread:26737 [wandb_init.py:init():847] run started, returning control to user process
+2026-05-28 15:54:59,482 INFO    MainThread:26737 [wandb_run.py:_config_callback():1382] config_cb ('_wandb', 'visualize', 'ppl_curves') {'panel_type': 'Vega2', 'panel_config': {'panelDefId': 'wandb/lineseries/v0', 'fieldSettings': {'step': 'step', 'lineKey': 'lineKey', 'lineVal': 'lineVal'}, 'stringSettings': {'title': 'Experiment 1 PPL', 'xname': 'Token index'}, 'transform': {'name': 'tableWithLeafColNames'}, 'userQuery': {'queryFields': [{'name': 'runSets', 'args': [{'name': 'runSets', 'value': '${runSets}'}], 'fields': [{'name': 'id', 'fields': []}, {'name': 'name', 'fields': []}, {'name': '_defaultColorIndex', 'fields': []}, {'name': 'summaryTable', 'args': [{'name': 'tableKey', 'value': 'ppl_curves_table'}], 'fields': []}]}]}}} None
+2026-05-28 15:55:01,722 INFO    MainThread:26737 [wandb_run.py:_finish():2109] finishing run 471610515-peking-university/streamingllm-exp/jitmnpoo
+2026-05-28 15:55:01,723 INFO    MainThread:26737 [wandb_run.py:_atexit_cleanup():2349] got exitcode: 0
+2026-05-28 15:55:01,723 INFO    MainThread:26737 [wandb_run.py:_restore():2332] restore
+2026-05-28 15:55:01,723 INFO    MainThread:26737 [wandb_run.py:_restore():2338] restore done
+2026-05-28 15:55:27,828 INFO    MainThread:26737 [wandb_run.py:_footer_history_summary_info():3991] rendering history
+2026-05-28 15:55:27,830 INFO    MainThread:26737 [wandb_run.py:_footer_history_summary_info():4023] rendering summary
+2026-05-28 15:55:27,840 INFO    MainThread:26737 [wandb_run.py:_footer_sync_info():3950] logging synced files

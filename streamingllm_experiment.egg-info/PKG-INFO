@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: streamingllm-experiment
+Version: 0.0.1
+Summary: StreamingLLM experiment framework
+Requires-Python: >=3.10

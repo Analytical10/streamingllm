@@ -1,0 +1,7 @@
+{
+  "model_name": "/data/pretrained_models/Llama-2-7b-hf",
+  "target_tokens": 20000,
+  "actual_tokens": 65134,
+  "num_books_used": 1,
+  "output": "/home/raosongde/streamingllm-experiment/data/pg19_20k.txt"
+}
