@@ -26,3 +26,10 @@ config: {'model_name': '/data/pretrained_models/Llama-2-7b-hf', 'input': 'data/p
 2026-05-28 17:14:56,312 INFO    MainThread:37200 [wandb_run.py:_redirect():2300] Wrapping output streams.
 2026-05-28 17:14:56,312 INFO    MainThread:37200 [wandb_run.py:_redirect():2325] Redirects installed.
 2026-05-28 17:14:56,313 INFO    MainThread:37200 [wandb_init.py:init():847] run started, returning control to user process
+2026-05-28 17:31:50,054 INFO    MainThread:37200 [wandb_run.py:_finish():2109] finishing run 471610515-peking-university/streamingllm-exp/2ntpz4rw
+2026-05-28 17:31:50,054 INFO    MainThread:37200 [wandb_run.py:_atexit_cleanup():2349] got exitcode: 0
+2026-05-28 17:31:50,055 INFO    MainThread:37200 [wandb_run.py:_restore():2332] restore
+2026-05-28 17:31:50,055 INFO    MainThread:37200 [wandb_run.py:_restore():2338] restore done
+2026-05-28 17:32:20,160 INFO    MainThread:37200 [wandb_run.py:_footer_history_summary_info():3991] rendering history
+2026-05-28 17:32:20,162 INFO    MainThread:37200 [wandb_run.py:_footer_history_summary_info():4023] rendering summary
+2026-05-28 17:32:20,174 INFO    MainThread:37200 [wandb_run.py:_footer_sync_info():3950] logging synced files

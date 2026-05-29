@@ -9,9 +9,10 @@ import wandb
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM
 
-from streamingllm_experiment.cache_utils import DenseCache, SinkCacheStrategy, WindowedCache
+from streamingllm_experiment.cache_utils import DenseCache, SinkCacheStrategy, WindowedCache, get_cache_seq_length
 from streamingllm_experiment.eval_utils import compute_streaming_loss, losses_to_ppl, sliding_window_mean
 from streamingllm_experiment.tokenization import load_tokenizer
+from streamingllm_experiment.pos_shift import enable_llama_pos_shift_attention
 
 def run_recompute(
     model,
@@ -76,6 +77,8 @@ def main() -> None:
     )
     print(f"Model loaded in {time.time() - start:.2f}s")
 
+    enable_llama_pos_shift_attention(model)
+
     strategies = {
         "dense": DenseCache(),
         "window": WindowedCache(max_len=args.window_length),
@@ -128,10 +131,18 @@ def main() -> None:
     else:
         strategy = strategies[args.strategy]
         kv_cache = strategy.init_cache()
+        
+        def aligned_position_ids_fn(cache):
+            cache_len = get_cache_seq_length(cache)
+            if cache_len < args.window_length:
+                return torch.tensor([[cache_len]], dtype=torch.long, device=device)
+            return torch.tensor([[args.window_length - 1]], dtype=torch.long, device=device)
+
         losses = compute_streaming_loss(
             model,
             input_ids,
             kv_cache=kv_cache,
+            custom_position_fn=aligned_position_ids_fn,
             cache_strategy=strategy,
             log_interval=args.log_interval,
             progress_desc=args.strategy,
