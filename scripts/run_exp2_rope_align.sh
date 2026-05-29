@@ -8,7 +8,7 @@ SMOOTH_WINDOW=100
 MAX_TOKENS=20000
 
 # The alignment mode: "aligned" or "misaligned"
-ALIGNMENT="aligned"
+ALIGNMENT="misaligned"
 
 WANDB_PROJECT="streamingllm-exp"
 WANDB_RUN="exp2_${ALIGNMENT}"

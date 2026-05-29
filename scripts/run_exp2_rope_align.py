@@ -8,7 +8,7 @@ import wandb
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM
 
-from streamingllm_experiment.cache_utils import WindowedCache
+from streamingllm_experiment.cache_utils import SinkCacheStrategy
 from streamingllm_experiment.eval_utils import compute_streaming_loss, losses_to_ppl, sliding_window_mean
 from streamingllm_experiment.position_utils import aligned_position_ids_fn, build_misaligned_position_ids_fn
 from streamingllm_experiment.tokenization import load_tokenizer
@@ -49,7 +49,8 @@ def main() -> None:
     )
     print(f"Model loaded in {time.time() - start:.2f}s")
 
-    enable_llama_pos_shift_attention(model)
+    shift_mode = "kvcache" if args.alignment == "aligned" else "absolute"
+    enable_llama_pos_shift_attention(model, shift_mode=shift_mode)
 
     if args.wandb_mode != "disabled":
         wandb.init(
@@ -83,13 +84,11 @@ def main() -> None:
                 }
             )
 
-    cache_strategy = WindowedCache(max_len=args.window_length)
+    cache_strategy = SinkCacheStrategy(window_length=args.window_length, num_sink_tokens=4)
     kv_cache = cache_strategy.init_cache()
 
-    if args.alignment == "aligned":
-        custom_position_fn = lambda cache: aligned_position_ids_fn(cache, args.window_length, device)
-    else:
-        custom_position_fn = build_misaligned_position_ids_fn(device=device)
+    # Always provide absolute positions explicitly to test the internal shift logic
+    custom_position_fn = build_misaligned_position_ids_fn(device=device)
 
     losses = compute_streaming_loss(
         model,

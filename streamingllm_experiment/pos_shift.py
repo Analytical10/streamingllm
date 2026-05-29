@@ -28,6 +28,26 @@ def apply_rotary_pos_emb_single(x, cos, sin, position_ids):
     return x_embed
 
 
+def get_position_ids(position_ids: torch.LongTensor, kv_seq_len: int, shift_mode: str, num_sink: int = 4):
+    device = position_ids.device
+    if shift_mode == "kvcache":
+        # Overwrite with kvcache contiguous indices
+        query_pos = torch.tensor([[kv_seq_len - 1]], dtype=torch.long, device=device)
+        key_pos = torch.arange(kv_seq_len, device=device).unsqueeze(0)
+        return query_pos, key_pos
+    else: # "absolute"
+        q_max = position_ids.max().item()
+        query_pos = position_ids
+        if q_max >= kv_seq_len:
+            recent_len = kv_seq_len - num_sink
+            sink_pos = torch.arange(num_sink, device=device)
+            recent_pos = torch.arange(q_max - recent_len + 1, q_max + 1, device=device)
+            key_pos = torch.cat([sink_pos, recent_pos]).unsqueeze(0)
+        else:
+            key_pos = torch.arange(kv_seq_len, device=device).unsqueeze(0)
+        return query_pos, key_pos
+
+
 def llama_pos_shift_attention_forward(
     self,
     hidden_states: torch.Tensor,
@@ -92,14 +112,19 @@ def llama_pos_shift_attention_forward(
         else:
             kv_seq_len += past_key_value[0].shape[-2]
 
-    full_position_ids = torch.arange(kv_seq_len, device=position_ids.device).unsqueeze(0)
+    shift_mode = getattr(self, "shift_mode", "kvcache")
+    query_position_ids, key_position_ids = get_position_ids(position_ids, kv_seq_len, shift_mode)
+
+    max_pos = max(query_position_ids.max().item(), key_position_ids.max().item()) + 1
+    full_position_ids = torch.arange(max_pos, device=position_ids.device).unsqueeze(0)
+    
     try:
         cos, sin = self.rotary_emb(value_states, position_ids=full_position_ids)
     except TypeError:
-        cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
+        cos, sin = self.rotary_emb(value_states, seq_len=max_pos)
 
-    ### Shift Pos: query pos is min(cache_size, idx)
-    query_states = apply_rotary_pos_emb_single(query_states, cos, sin, position_ids)
+    ### Shift Pos: query pos
+    query_states = apply_rotary_pos_emb_single(query_states, cos, sin, query_position_ids)
     ###
 
     if past_key_value is not None:
@@ -114,8 +139,7 @@ def llama_pos_shift_attention_forward(
     elif use_cache:
         past_key_value = (key_states, value_states)
 
-    ### Shift Pos: key pos is the pos in cache
-    key_position_ids = torch.arange(kv_seq_len, device=position_ids.device).unsqueeze(0)
+    ### Shift Pos: key pos
     key_states = apply_rotary_pos_emb_single(key_states, cos, sin, key_position_ids)
     ###
 
@@ -177,14 +201,15 @@ def llama_pos_shift_attention_forward(
     return attn_output, attn_weights, past_key_value
 
 
-def enable_llama_pos_shift_attention(model):
+def enable_llama_pos_shift_attention(model, shift_mode="kvcache"):
     for name, module in reversed(model._modules.items()):
         if len(list(module.children())) > 0:
             enable_llama_pos_shift_attention(
-                module,
+                module, shift_mode=shift_mode
             )
 
         if isinstance(module, LlamaAttention):
+            module.shift_mode = shift_mode
             model._modules[name].forward = types.MethodType(
                 llama_pos_shift_attention_forward, model._modules[name]
             )
