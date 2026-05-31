@@ -172,54 +172,14 @@ def misaligned_position_ids_fn(kv_cache):
 
 ---
 
-### 实验 3：下游流式长任务验证 (StreamEval 与 LongBench)
+### 实验 7：带“汇 Token（Sink Token）”的预训练实验
 
-**目标**：复现图 9 和 Table 8 。测试在长依赖干扰场景下，StreamingLLM 的局部上下文提取和流式任务回答表现 。
-
-#### 步骤 3a：复现 StreamEval 多轮流式 Q&A 实验
-
-1. 
-**加载模型**：使用指令微调模型 `Llama-2-7b-chat-hf` 。
-
-
-2. 
-**配置流式长输入**：将准备好的 120K Token 的 `StreamEval` 语料灌入模型 ，使用 `SinkCache(window_length=2048, num_sink_tokens=4)` 运行流式解码循环 。
-
-
-3. 
-**拦截并记录 Answer**：每当循环遇到 `Query:` 标记时，让模型停下流式灌入，进入 **Generation 模式**生成接下来的 Token 直到遇到 Stop Token 结束 。
-
-
-4. 
-**准确率统计**：将模型生成的字符串与标准答案（前 20 行对应的键值）进行**精确字符串匹配（Exact Match）** 。绘制随着输入 Token 长度增长（由 0K 到 120K），模型单步回答准确率的趋势，复现类似图 9 的水平直线（保持约 80%+ 准确率） 。
-
-
-
-#### 步骤 3b：复现 LongBench 长文档测试与“首尾保留”修复实验
-
-1. 
-**基线运行（Truncation 1750+1750）**：读取 LongBench 数据集中的 NarrativeQA 样本 。按照官方标准，截取长文档的前 1750 个 Token 和后 1750 个 Token 拼接 ，送入模型生成答案，计算得分（F1 / 粗准确率）作为 Baseline 。
-
-
-2. 
-**对比组测试（StreamingLLM 4+3496）**：直接把全量长文档（可能上万 Token）通过 `SinkCache(window_length=3500, num_sink_tokens=4)` 流式喂给模型 ，最后发起提问。记录其得分，会发现结果大幅暴跌（因为文章开头的关键叙事被滑窗冲掉了） 。
-
-
-3. 
-**修复验证组（StreamingLLM 1750+1750）**：将 Cache 策略修改为固定保留前 **1750 个 Token 作为 Attention Sink**，滚动滑窗留给后 1750 个 Token 。再次运行任务，验证其得分会完美修复，恢复到甚至微幅超越物理截断基线的水平 。
-
-
-
----
-
-### 实验 4：带“汇 Token（Sink Token）”的预训练实验
-
-**目标**：从零预训练 160M 小模型，复现 Table 3 。证明在预训练时强制加入 1 个专用可学习的虚拟 Token，能够实现在流式测试时**仅需 1 个 Sink Token** 就能稳住 PPL 的效果 。
+**目标**：从零预训练 Llama 小模型，复现 Table 3 。证明在预训练时强制加入 1 个专用可学习的虚拟 Token，能够实现在流式测试时**仅需 1 个 Sink Token** 就能稳住 PPL 的效果 。
 
 #### 实现步骤：
 
 1. **数据改造与多版本模型预训练**：
-基于 `Pythia-160M` 架构与 LLaMA-Factory 的预训练阶段（`stage: pt`），准备 3 个独立的增量训练分支 ：
+基于 ` LLaMA-Factory 的预训练阶段（`stage: pt`），准备 3 个独立的增量训练分支 ：
 
 
 * 

@@ -1,0 +1,63 @@
+wandb_version: 1
+
+model_name:
+  desc: null
+  value: /data/pretrained_models/Llama-2-7b-hf
+input:
+  desc: null
+  value: data/pg19_books_65133.txt
+window_length:
+  desc: null
+  value: 1024
+num_sink_tokens:
+  desc: null
+  value: 4
+smooth_window:
+  desc: null
+  value: 100
+max_tokens:
+  desc: null
+  value: 20001
+strategy:
+  desc: null
+  value: sink
+replace_sink_newline:
+  desc: null
+  value: true
+_wandb:
+  desc: null
+  value:
+    python_version: 3.11.15
+    cli_version: 0.17.4
+    framework: huggingface
+    huggingface_version: 4.41.2
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1780143020
+    t:
+      1:
+      - 1
+      - 11
+      - 49
+      - 55
+      - 71
+      - 105
+      2:
+      - 1
+      - 11
+      - 49
+      - 55
+      - 71
+      - 105
+      3:
+      - 2
+      - 13
+      - 16
+      - 23
+      - 62
+      4: 3.11.15
+      5: 0.17.4
+      6: 4.41.2
+      8:
+      - 5
+      13: linux-x86_64
