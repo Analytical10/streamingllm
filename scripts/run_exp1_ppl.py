@@ -1,7 +1,7 @@
 import argparse
-import math
 import time
 from collections import deque
+from functools import partial
 from pathlib import Path
 
 import torch
@@ -9,10 +9,11 @@ import wandb
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM
 
-from streamingllm_experiment.cache_utils import DenseCache, SinkCacheStrategy, WindowedCache, get_cache_seq_length
+from streamingllm_experiment.cache_utils import DenseCache, SinkCacheStrategy, WindowedCache
 from streamingllm_experiment.eval_utils import compute_streaming_loss, losses_to_ppl, sliding_window_mean
-from streamingllm_experiment.tokenization import load_tokenizer
 from streamingllm_experiment.pos_shift import enable_llama_pos_shift_attention
+from streamingllm_experiment.position_utils import aligned_position_ids_fn
+from streamingllm_experiment.tokenization import load_tokenizer
 
 def run_recompute(
     model,
@@ -131,18 +132,19 @@ def main() -> None:
     else:
         strategy = strategies[args.strategy]
         kv_cache = strategy.init_cache()
-        
-        def aligned_position_ids_fn(cache):
-            cache_len = get_cache_seq_length(cache)
-            if cache_len < args.window_length:
-                return torch.tensor([[cache_len]], dtype=torch.long, device=device)
-            return torch.tensor([[args.window_length - 1]], dtype=torch.long, device=device)
+        custom_position_fn = None
+        if args.strategy in {"window", "sink"}:
+            custom_position_fn = partial(
+                aligned_position_ids_fn,
+                window_length=args.window_length,
+                device=device,
+            )
 
         losses = compute_streaming_loss(
             model,
             input_ids,
             kv_cache=kv_cache,
-            custom_position_fn=aligned_position_ids_fn,
+            custom_position_fn=custom_position_fn,
             cache_strategy=strategy,
             log_interval=args.log_interval,
             progress_desc=args.strategy,
@@ -152,8 +154,17 @@ def main() -> None:
     losses = [float(x) for x in losses]
     smoothed = sliding_window_mean(losses, args.smooth_window)
     ppl = losses_to_ppl(smoothed)
+    overall_avg_loss = sum(losses) / len(losses) if losses else float("inf")
+    overall_ppl = torch.tensor(overall_avg_loss).exp().item()
+    final_smoothed_ppl = ppl[-1] if ppl else float("inf")
+    print(f"Overall Average Loss: {overall_avg_loss:.4f}")
+    print(f"Overall Perplexity: {overall_ppl:.2f}")
+    print(f"Final Smoothed Perplexity: {final_smoothed_ppl:.2f}")
 
     if args.wandb_mode != "disabled":
+        wandb.summary["overall_avg_loss"] = overall_avg_loss
+        wandb.summary["overall_ppl"] = overall_ppl
+        wandb.summary["final_smoothed_ppl"] = final_smoothed_ppl
         wandb.finish()
 
 
